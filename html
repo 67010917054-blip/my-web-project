@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ตั้งค่าร้านค้า — สมุดหนี้ดิจิทัล</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F9D58">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#0F9D58; --brand-dark:#0B7A44; --brand-soft:#E4F6EC;
+    --blue:#1A73E8; --bg:#F6F8F9; --card:#FFFFFF; --ink:#1E2530; --ink-soft:#667085;
+    --border:#E4E9EE; --radius:16px; --shadow: 0 10px 30px rgba(20,40,30,0.08);
+  }
+  [data-theme="dark"]{
+    --bg:#0E1512; --card:#161F1B; --ink:#EAF2ED; --ink-soft:#9AAEA4;
+    --border:#233029; --brand-soft:#122A1E; --shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font-family:'Sarabun', sans-serif; }
+  .wrap{ max-width:480px; margin:0 auto; padding:26px 20px 70px; }
+  h1{ font-family:'Kanit', sans-serif; font-size:19px; margin:0 0 4px; }
+  p.sub{ margin:0 0 20px; color:var(--ink-soft); font-size:13.5px; }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:16px; }
+  .card h2{ font-family:'Kanit', sans-serif; font-size:15.5px; margin:0 0 12px; display:flex; align-items:center; gap:6px; }
+  label{ font-size:12.5px; font-weight:600; color:var(--ink-soft); display:block; margin:12px 0 6px; }
+  label:first-of-type{ margin-top:0; }
+  input, textarea{ width:100%; padding:11px 13px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--ink); font-size:15px; font-family:'Sarabun'; }
+  input:focus, textarea:focus{ outline:none; border-color:var(--brand); }
+  .upload-row{ display:flex; align-items:center; gap:12px; }
+  .upload-preview{ width:56px; height:56px; border-radius:12px; background:var(--brand-soft); display:flex; align-items:center; justify-content:center; font-size:22px; overflow:hidden; flex-shrink:0; }
+  .upload-preview img{ width:100%; height:100%; object-fit:cover; }
+  .file-btn{ font-size:13px; padding:9px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--card); cursor:pointer; }
+  .primary-btn{ width:100%; margin-top:6px; padding:14px; border-radius:12px; border:none; background:var(--brand); color:#fff; font-family:'Sarabun'; font-weight:700; font-size:15.5px; cursor:pointer; }
+  .primary-btn:disabled{ opacity:.6; }
+  .hint{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:10px; margin-top:14px; display:none; }
+  .msg.show{ display:block; }
+  .msg.err{ background:#FDECEA; color:#D93025; }
+  .msg.ok{ background:var(--brand-soft); color:var(--brand-dark); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ตั้งค่าร้านครั้งแรก</h1>
+  <p class="sub">กรอกข้อมูลร้านค้าก่อนเริ่มใช้งานสมุดหนี้ดิจิทัล</p>
+
+  <div class="card">
+    <h2>🏠 ข้อมูลร้านค้า</h2>
+    <label for="shopName">ชื่อร้าน</label>
+    <input type="text" id="shopName" placeholder="เช่น ร้านป้าแดงชำ" required>
+    <label for="ownerName">ชื่อเจ้าของร้าน</label>
+    <input type="text" id="ownerName" placeholder="ชื่อ-นามสกุล">
+    <label for="phone">เบอร์โทร</label>
+    <input type="text" id="phone" placeholder="08x-xxx-xxxx">
+    <label for="address">ที่อยู่</label>
+    <textarea id="address" rows="2" placeholder="ที่อยู่ร้านค้า"></textarea>
+  </div>
+
+  <div class="card">
+    <h2>🖼️ โลโก้ &amp; รูปหน้าร้าน</h2>
+    <label>โลโก้ร้าน</label>
+    <div class="upload-row">
+      <div class="upload-preview" id="logoPreview">🏪</div>
+      <label class="file-btn">เลือกรูป<input type="file" id="logoFile" accept="image/*" style="display:none;"></label>
+    </div>
+    <label style="margin-top:16px;">รูปหน้าร้าน (ถ้ามี)</label>
+    <div class="upload-row">
+      <div class="upload-preview" id="frontPreview">📷</div>
+      <label class="file-btn">เลือกรูป<input type="file" id="frontFile" accept="image/*" style="display:none;"></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔳 QR Code รับเงิน (PromptPay)</h2>
+    <p class="hint" style="margin:0 0 10px;">ใส่เบอร์ PromptPay ของร้าน ระบบจะสร้าง QR แบบไดนามิกให้อัตโนมัติในหน้าแดชบอร์ด หรืออัปโหลดรูป QR ของท่านเองก็ได้</p>
+    <label for="promptpayNumber">เบอร์ PromptPay</label>
+    <input type="text" id="promptpayNumber" placeholder="08xxxxxxxx">
+    <label style="margin-top:14px;">หรืออัปโหลดรูป QR ที่มีอยู่แล้ว (ไม่บังคับ)</label>
+    <div class="upload-row">
+      <div class="upload-preview" id="qrPreview">🔳</div>
+      <label class="file-btn">เลือกรูป<input type="file" id="qrFile" accept="image/*" style="display:none;"></label>
+    </div>
+  </div>
+
+  <button class="primary-btn" id="saveBtn">✅ เริ่มใช้งาน</button>
+  <div class="msg" id="msgBox"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="lib/supabase-config.js"></script>
+<script>
+  (async ()=>{
+    const session = await getSessionOrRedirect('login.html');
+    if(!session) return;
+    // already has a shop? skip straight to dashboard
+    const existing = await getMyShop();
+    if(existing){ window.location.href = 'dashboard.html'; return; }
+
+    const params = new URLSearchParams(window.location.search);
+    const prefillName = params.get('name');
+    if(prefillName) document.getElementById('shopName').value = prefillName;
+    else if(session.user.user_metadata && session.user.user_metadata.shop_name){
+      document.getElementById('shopName').value = session.user.user_metadata.shop_name;
+    }
+  })();
+
+  function wirePreview(fileInputId, previewId){
+    const input = document.getElementById(fileInputId);
+    const preview = document.getElementById(previewId);
+    input.addEventListener('change', ()=>{
+      const f = input.files[0];
+      if(!f) return;
+      const url = URL.createObjectURL(f);
+      preview.innerHTML = `<img src="${url}" alt="">`;
+    });
+  }
+  wirePreview('logoFile','logoPreview');
+  wirePreview('frontFile','frontPreview');
+  wirePreview('qrFile','qrPreview');
+
+  function showMsg(text, ok=false){
+    const box = document.getElementById('msgBox');
+    box.textContent = text;
+    box.className = 'msg show ' + (ok ? 'ok' : 'err');
+  }
+
+  async function uploadIfPresent(inputId, shopId, label){
+    const input = document.getElementById(inputId);
+    const file = input.files[0];
+    if(!file) return null;
+    const path = `${shopId}/${label}-${Date.now()}-${file.name}`;
+    const { error } = await supabaseClient.storage.from('shop-assets').upload(path, file, { upsert: true });
+    if(error){ console.error(error); return null; }
+    const { data } = supabaseClient.storage.from('shop-assets').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', async ()=>{
+    const btn = document.getElementById('saveBtn');
+    const name = document.getElementById('shopName').value.trim();
+    if(!name){ showMsg('กรุณากรอกชื่อร้าน'); return; }
+    btn.disabled = true;
+    btn.textContent = 'กำลังบันทึก...';
+    try{
+      const { data: userData } = await supabaseClient.auth.getUser();
+      const ownerId = userData.user.id;
+
+      // Create the shop row first so we have a shop id for file paths
+      const { data: shop, error: shopErr } = await supabaseClient
+        .from('shops')
+        .insert({
+          owner_id: ownerId,
+          name,
+          owner_name: document.getElementById('ownerName').value.trim() || null,
+          phone: document.getElementById('phone').value.trim() || null,
+          address: document.getElementById('address').value.trim() || null,
+          promptpay_number: document.getElementById('promptpayNumber').value.trim() || null
+        })
+        .select()
+        .single();
+      if(shopErr) throw shopErr;
+
+      const [logoUrl, frontUrl, qrUrl] = await Promise.all([
+        uploadIfPresent('logoFile', shop.id, 'logo'),
+        uploadIfPresent('frontFile', shop.id, 'storefront'),
+        uploadIfPresent('qrFile', shop.id, 'qr')
+      ]);
+      if(logoUrl || frontUrl || qrUrl){
+        await supabaseClient.from('shops').update({
+          logo_url: logoUrl || null,
+          storefront_url: frontUrl || null,
+          qr_image_url: qrUrl || null
+        }).eq('id', shop.id);
+      }
+
+      // Seed an empty data snapshot for this shop (real DB row, no demo data)
+      await supabaseClient.from('shop_data').insert({
+        shop_id: shop.id,
+        data: { customers: [], debts: [], products: [], stockHistory: [], cashSales: [], currentPlan: 'free' }
+      });
+
+      showMsg('ตั้งค่าร้านสำเร็จ กำลังพาไปหน้าแดชบอร์ด...', true);
+      setTimeout(()=>{ window.location.href = 'dashboard.html'; }, 700);
+    }catch(err){
+      console.error(err);
+      showMsg(err.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่');
+      btn.disabled = false;
+      btn.textContent = '✅ เริ่มใช้งาน';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>เข้าสู่ระบบ — สมุดหนี้ดิจิทัล</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F9D58">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#0F9D58; --brand-dark:#0B7A44; --brand-soft:#E4F6EC;
+    --blue:#1A73E8; --blue-soft:#E8F0FE;
+    --bg:#F6F8F9; --card:#FFFFFF; --ink:#1E2530; --ink-soft:#667085;
+    --border:#E4E9EE; --danger:#D93025; --radius:16px;
+    --shadow: 0 10px 30px rgba(20,40,30,0.08);
+  }
+  [data-theme="dark"]{
+    --bg:#0E1512; --card:#161F1B; --ink:#EAF2ED; --ink-soft:#9AAEA4;
+    --border:#233029; --brand-soft:#122A1E; --blue-soft:#152233;
+    --shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:'Sarabun', sans-serif; transition:background .2s, color .2s; }
+  .wrap{ max-width:440px; margin:0 auto; padding:28px 20px 60px; min-height:100vh; }
+  .top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .logo{ width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg,var(--brand),var(--blue)); display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; flex-shrink:0; }
+  .brand h1{ font-family:'Kanit', sans-serif; font-size:17px; margin:0; line-height:1.2; }
+  .brand p{ margin:0; font-size:11.5px; color:var(--ink-soft); }
+  .theme-btn{ width:38px; height:38px; border-radius:50%; border:1px solid var(--border); background:var(--card); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
+  .hero{ text-align:center; margin:18px 0 26px; }
+  .hero h2{ font-family:'Kanit', sans-serif; font-size:21px; margin:0 0 6px; line-height:1.4; }
+  .hero p{ margin:0; color:var(--ink-soft); font-size:13.5px; }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 20px; }
+  .tabs{ display:flex; background:var(--brand-soft); border-radius:12px; padding:4px; margin-bottom:20px; }
+  .tabs button{ flex:1; padding:10px; border:none; background:transparent; border-radius:10px; font-family:'Sarabun'; font-weight:600; font-size:14px; color:var(--brand-dark); cursor:pointer; }
+  .tabs button.active{ background:var(--brand); color:#fff; }
+  label{ font-size:12.5px; font-weight:600; color:var(--ink-soft); display:block; margin:14px 0 6px; }
+  label:first-of-type{ margin-top:0; }
+  input{ width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--ink); font-size:15px; font-family:'Sarabun'; }
+  input:focus{ outline:none; border-color:var(--brand); }
+  .field-hint{ font-size:11.5px; color:var(--ink-soft); margin-top:5px; }
+  .primary-btn{ width:100%; margin-top:18px; padding:13px; border-radius:12px; border:none; background:var(--brand); color:#fff; font-family:'Sarabun'; font-weight:700; font-size:15px; cursor:pointer; }
+  .primary-btn:disabled{ opacity:.6; cursor:not-allowed; }
+  .link-row{ display:flex; justify-content:space-between; margin-top:12px; font-size:13px; }
+  .link-row a{ color:var(--blue); text-decoration:none; cursor:pointer; }
+  .divider{ display:flex; align-items:center; gap:10px; margin:20px 0; color:var(--ink-soft); font-size:12.5px; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--border); }
+  .oauth-btn{ width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; border-radius:12px; border:1.5px solid var(--border); background:var(--card); color:var(--ink); font-family:'Sarabun'; font-weight:600; font-size:14.5px; cursor:pointer; margin-bottom:10px; }
+  .oauth-btn img{ width:18px; height:18px; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:10px; margin-top:14px; display:none; }
+  .msg.show{ display:block; }
+  .msg.err{ background:#FDECEA; color:var(--danger); }
+  .msg.ok{ background:var(--brand-soft); color:var(--brand-dark); }
+  .foot-note{ text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:22px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo">📒</div>
+      <div>
+        <h1>สมุดหนี้ดิจิทัล</h1>
+        <p>Smart Credit Log</p>
+      </div>
+    </div>
+    <button class="theme-btn" id="themeBtn" title="สลับธีมสว่าง/มืด">🌙</button>
+  </div>
+
+  <div class="hero">
+    <h2>จัดการหนี้และสต็อกสินค้า<br>ด้วยเสียงในไม่กี่วินาที</h2>
+    <p>สำหรับพ่อค้าแม่ค้ารายย่อย ใช้งานง่ายบนมือถือ</p>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="active" id="tabLogin">เข้าสู่ระบบ</button>
+      <button id="tabSignup">สมัครสมาชิก</button>
+    </div>
+
+    <form id="authForm">
+      <div id="shopNameField" style="display:none;">
+        <label for="shopName">ชื่อร้านค้า</label>
+        <input type="text" id="shopName" placeholder="เช่น ร้านป้าแดงชำ">
+      </div>
+      <label for="email">อีเมล</label>
+      <input type="email" id="email" required placeholder="you@example.com" autocomplete="email">
+      <label for="password">รหัสผ่าน</label>
+      <input type="password" id="password" required minlength="6" placeholder="อย่างน้อย 6 ตัวอักษร" autocomplete="current-password">
+      <button type="submit" class="primary-btn" id="submitBtn">เข้าสู่ระบบ</button>
+    </form>
+
+    <div class="link-row">
+      <a id="forgotLink">ลืมรหัสผ่าน?</a>
+      <a id="switchLink">ยังไม่มีบัญชี? สมัครสมาชิก</a>
+    </div>
+
+    <div class="divider">หรือเข้าสู่ระบบด้วย</div>
+    <button class="oauth-btn" id="googleBtn">
+      <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="">
+      เข้าสู่ระบบด้วย Google
+    </button>
+    <button class="oauth-btn" id="appleBtn">
+       เข้าสู่ระบบด้วย Apple ID
+    </button>
+
+    <div class="msg" id="msgBox"></div>
+  </div>
+
+  <p class="foot-note">การใช้งานถือว่ายอมรับเงื่อนไขการให้บริการและนโยบายความเป็นส่วนตัว</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="lib/supabase-config.js"></script>
+<script>
+  // ---------- Theme ----------
+  const themeBtn = document.getElementById('themeBtn');
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('scl-theme', t);
+  }
+  applyTheme(localStorage.getItem('scl-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  themeBtn.addEventListener('click', ()=>{
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  // ---------- If already logged in, skip straight past this page ----------
+  (async ()=>{
+    const { data } = await supabaseClient.auth.getSession();
+    if (data.session) {
+      const shop = await getMyShop();
+      window.location.href = shop ? 'dashboard.html' : 'setup.html';
+    }
+  })();
+
+  // ---------- Mode toggle (login / signup) ----------
+  let mode = 'login';
+  const tabLogin = document.getElementById('tabLogin');
+  const tabSignup = document.getElementById('tabSignup');
+  const shopNameField = document.getElementById('shopNameField');
+  const submitBtn = document.getElementById('submitBtn');
+  const switchLink = document.getElementById('switchLink');
+  function setMode(m){
+    mode = m;
+    tabLogin.classList.toggle('active', m==='login');
+    tabSignup.classList.toggle('active', m==='signup');
+    shopNameField.style.display = m==='signup' ? 'block' : 'none';
+    submitBtn.textContent = m==='signup' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+    switchLink.textContent = m==='signup' ? 'มีบัญชีแล้ว? เข้าสู่ระบบ' : 'ยังไม่มีบัญชี? สมัครสมาชิก';
+  }
+  tabLogin.addEventListener('click', ()=>setMode('login'));
+  tabSignup.addEventListener('click', ()=>setMode('signup'));
+  switchLink.addEventListener('click', ()=>setMode(mode==='login' ? 'signup' : 'login'));
+
+  function showMsg(text, ok=false){
+    const box = document.getElementById('msgBox');
+    box.textContent = text;
+    box.className = 'msg show ' + (ok ? 'ok' : 'err');
+  }
+
+  // ---------- Email/password submit ----------
+  document.getElementById('authForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    submitBtn.disabled = true;
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    try{
+      if(mode === 'signup'){
+        const shopName = document.getElementById('shopName').value.trim();
+        if(!shopName){ showMsg('กรุณากรอกชื่อร้านค้า'); submitBtn.disabled=false; return; }
+        const { data, error } = await supabaseClient.auth.signUp({
+          email, password, options: { data: { shop_name: shopName } }
+        });
+        if(error) throw error;
+        if(data.session){
+          window.location.href = 'setup.html?name=' + encodeURIComponent(shopName);
+        } else {
+          showMsg('สมัครสมาชิกสำเร็จ กรุณายืนยันอีเมลของท่านก่อนเข้าสู่ระบบ', true);
+        }
+      } else {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if(error) throw error;
+        const shop = await getMyShop();
+        window.location.href = shop ? 'dashboard.html' : 'setup.html';
+      }
+    }catch(err){
+      showMsg(err.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+    }finally{
+      submitBtn.disabled = false;
+    }
+  });
+
+  document.getElementById('forgotLink').addEventListener('click', async ()=>{
+    const email = document.getElementById('email').value.trim();
+    if(!email){ showMsg('กรุณากรอกอีเมลก่อนกดลืมรหัสผ่าน'); return; }
+    try{
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/login.html'
+      });
+      if(error) throw error;
+      showMsg('ส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลของท่านแล้ว', true);
+    }catch(err){ showMsg(err.message || 'ส่งลิงก์รีเซ็ตไม่สำเร็จ'); }
+  });
+
+  // ---------- OAuth ----------
+  document.getElementById('googleBtn').addEventListener('click', async ()=>{
+    await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/setup.html' }
+    });
+  });
+  document.getElementById('appleBtn').addEventListener('click', async ()=>{
+    await supabaseClient.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: window.location.origin + '/setup.html' }
+    });
+  });
+</script>
+</body>
+</html>
